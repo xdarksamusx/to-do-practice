@@ -1,186 +1,130 @@
 import React from "react";
 import "./styles.css";
 
-const Item = (props) => (
-  <li className={props.item.completed ? "item-completed" : "" + "flex"}>
-    {" "}
-    <SelectMenu />
-    <span
-      className="item"
-      onClick={() => {
-        props.handleClick();
-      }}
-    >
+const Item = (prop) => {
+  return (
+    <div>
       {" "}
-      {props.isClicked ? (
-        <form onSubmit={e => e.preventDefault}>
-          {" "}
-          <input
-            type="text"
-            value={props.newText}
-            onChange={(e) => props.handleChange(props.item, e.target.value)}
-          />
-        </form>
-      ) : (
-        props.item.value
-      )}
-    </span>
-    <button onClick={() => props.handleToggle(props.item)}>Togggle</button>{" "}
-    <button onClick={() => props.handleRemove(props.item)}>Remove</button>
-  </li>
-);
+      <button> toggle </button> <button> remove </button>
+    </div>
+  );
+};
 
-const SelectMenu = (props) => (
-  <div>
-    <label for="priority"></label>
-    <select name="priority">
-      {" "}
-      <option> Low </option>
-      <option> Medium </option>
-      <option> High </option>
-    </select>
-  </div>
-);
-
-const List = (props) => (
-  <ul>
-    {props.list.map((item) => (
-      <Item
-        key={item}
-        item={item}
-        isEditing={props.isEditing}
-        isClicked={props.isClicked}
-        newText={props.newText}
-        handleSubmit={props.handleSubmit}
-        handleChange={props.handleChange}
-        handleToggle={props.handleToggle}
-        handleRemove={props.handleRemove}
-        handleClick={props.handleClick}
-        handleNewTextEdit={props.handleNewTextEdit}
-      />
-    ))}
-  </ul>
-);
-
-class Search extends React.Component {
-  render() {
-    return (
-      <input
-        type="text"
-        onChange={this.props.handleSearch}
-        value={this.props.searchValue}
-      />
-    );
-  }
-}
+const List = ({items , isEditing, handleInput, handleClick, handleKeyPress, editedValue}) => {
+  return (
+    <ul>
+      {items.map((item, index) => (
+        <li key={index}>
+        
+          {item.isEditied  ? <input  onChange={ (e) => handleInput (e.target.value, index)} onKeyPress={handleKeyPress(e, index)} value={editedValue}/> :  <span  onClick={handleClick(index)}>{item.key} </span>}
+         
+              
+         
+          <Item />
+        </li>
+      ))}
+    </ul>
+  );
+};
 
 class Form extends React.Component {
-  state = {
-    inputValue: ""
-  };
-
-  handleChange = (e) => {
-    this.setState({ inputValue: e.target.value });
-  };
-
-  handleSubmit = (e) => {
-    e.preventDefault();
-    const value = this.state.inputValue;
-    this.setState({ inputValue: "" });
-    this.props.handleSubmit(value);
-  };
-
   render() {
     return (
-      <form className="input-container" action="" onSubmit={this.handleSubmit}>
-        <input
-          type="text"
-          onChange={this.handleChange}
-          value={this.state.inputValue}
-        />
-      </form>
+      <div>
+        <form onSubmit={this.props.handleSubmit}>
+          {" "}
+          <input
+            onChange={(e) => this.props.handleChange(e.target.value)}
+            value={this.props.value}
+          />
+        </form>
+      </div>
     );
   }
 }
 
 class App extends React.Component {
   state = {
-    list: [],
+    items: [],
     searchValue: "",
 
-    isClicked: true,
+
+    isClicked: false,
     isEditing: false,
-    newText: ""
+    inputItem: "",
+    editedValue: "",
+    
   };
 
   handleChange = (value) => {
-    this.setState({ newText: value });
-    console.log(this.state.newText);
+    this.setState({ inputItem: value });
   };
 
-  handleSubmit = (value) => {
-    const item = {
-      value,
-      completed: false,
-      id: ` ${Math.random()} - ${Math.random()} `
-    };
+  handleClick = (index) => {
 
-    const newList = [...this.state.list, item];
-    this.setState({ list: newList , isClicked: !this.state.isClicked});
+    const itemsCopy = [...this.state.items]
+    itemsCopy[index].isEdited =  true
+
+
+    
+
+
+
+    this.setState({items: itemsCopy})
+    
   };
 
-  handleToggle = (item) => {
-    const newList = this.state.list.map((element) => {
-      if (element.id === item.id) {
-        element.completed = !element.completed;
-      }
-      return element;
-    });
-    this.setState({ list: newList });
-  };
-
-  handleRemove = (item) => {
-    const filteredList = this.state.list.filter((element) => {
-      if (element.id !== item.id) {
-        return element;
-      }
-    });
-    this.setState({ list: filteredList });
-  };
-
-  handleSearch = (e) => {
-    this.setState({ searchValue: e.target.value });
-  };
-
-  handleClick = () => {
-    this.setState((prevState) => ({
-      isEditing: !prevState.isEditing,
-      isClicked: !this.state.isClicked
+  handleKeyPress =  (e, index) => {
+    if (e.key === "Enter") {
+      const itemsCopy = [...this.state.items]
+      itemsCopy[index].isEdited =  false
       
-    }));
+      this.setState({items: itemsCopy})
+    }
+  }
+
+  handleSubmit = (event) => {
+    event.preventDefault();
+    const newItem = {key: this.state.inputItem}
+     
+    const updatedItems = [...this.state.items, newItem];
+
+    this.setState({ items: updatedItems, inputItem: "" });
+
+    console.log(this.state.items);
+  };
+
+  handleSubmit2 =  (event) => {
+    event.preventDefault();
+
+   
+  };
+
+  handleInput = (changedValue, index) => {
+    const copyOfItems = [...this.state.items];
+    const newObject = {key: changedValue, isEdited: true}
+     copyOfItems[index] = newObject
+    this.setState({ items: copyOfItems, editedValue: changedValue });
+    console.log(this.state.items)
   };
 
   render() {
     return (
       <div className="App">
-        <Form handleSubmit={this.handleSubmit} />
-
-        <Search
-          searchValue={this.state.searchValue}
-          handleSearch={this.handleSearch}
+        <Form
+          handleChange={this.handleChange}
+          handleSubmit={this.handleSubmit}
+          value={this.state.inputItem}
         />
         <List
-          list={this.state.list.filter((item) =>
-            item.value.toLowerCase().includes(this.state.searchValue)
-          )}
-          isClicked={this.state.isClicked}
-          isEditing={this.state.isEditing}
-          handleToggle={this.handleToggle}
-          handleSubmit={this.handleSubmit}
-          handleRemove={this.handleRemove}
+        editedValue = {this.state.editedValue}
+          items={this.state.items}
+          isEditing = {this.state.isEditing}
+          handleChange = {this.handleChange}
+          handleKeyPress = {this.handleKeyPress}
+
           handleClick={this.handleClick}
-          handleChange={this.handleChange}
-          handleNewTextEdit={this.handleNewTextEdit}
+          handleInput={this.handleInput}
         />
       </div>
     );
