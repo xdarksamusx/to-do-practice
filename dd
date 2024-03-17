@@ -1,131 +1,227 @@
 import React from "react";
 import "./styles.css";
 
-const Item = (prop) => {
-  return (
-    <div>
-      {" "}
-      <button> toggle </button> <button> remove </button>
-    </div>
-  );
-};
+// const Item = (props) => (
+//   <li className={props.item.completed ? "item-completed" : ""}>
+//     {" "}
+//     {props.item.value}
+//     <button onClick={() => props.handleToggle(props.item)}>Togggle</button>{" "}
+//     <button onClick={() => props.handleRemove(props.item)}>Remove</button>
+//   </li>
+// );
 
-const List = ({items , isEditing, handleInput, handleClick, handleKeyPress, editedValue}) => {
-  return (
-    <ul>
-      {items.map((item, index) => (
-        <li key={index}>
-        
-          {item.isEditied  ? <input  onChange={ (e) => handleInput (e.target.value, index)} onKeyPress={handleKeyPress(e, index)} value={editedValue}/> :  <span  onClick={handleClick(index)}>{item.key} </span>}
-         
-              
-         
-          <Item />
-        </li>
-      ))}
-    </ul>
-  );
-};
-////
+// const List = (props) => (
+//   <ul>
+//     {props.list.map((item) => (
+//       <Item
+//         key={item}
+//         item={item}
+//         handleToggle={props.handleToggle}
+//         handleRemove={props.handleRemove}
+//       />
+//     ))}
+//   </ul>
+// );
+
+// class Search extends React.Component {
+//   render() {
+//     return (
+//       <input
+//         type="text"
+//         onChange={this.props.handleSearch}
+//         value={this.props.searchValue}
+//       />
+//     );
+//   }
+// }
+
+// class Form extends React.Component {
+//   state = {
+//     inputValue: "",
+//   };
+
+//   handleChange = (e) => {
+//     this.setState({ inputValue: e.target.value });
+//   };
+
+//   handleSubmit = (e) => {
+//     e.preventDefault();
+//     const value = this.state.inputValue;
+//     this.setState({ inputValue: "" });
+//     this.props.handleSubmit(value);
+//   };
+
+//   render() {
+//     return (
+//       <form className="input-container" action="" onSubmit={this.handleSubmit}>
+//         <input
+//           type="text"
+//           onChange={this.handleChange}
+//           value={this.state.inputValue}
+//         />
+//       </form>
+//     );
+//   }
+// }
+
+// class App extends React.Component {
+//   state = {
+//     list: [],
+//     searchValue: "",
+//   };
+
+//   handleSubmit = (value) => {
+//     const item = {
+//       value,
+//       completed: false,
+//       id: ` ${Math.random()} - ${Math.random()} `,
+//     };
+
+//     const newList = [...this.state.list, item];
+//     this.setState({ list: newList });
+//   };
+
+//   handleToggle = (item) => {
+//     const newList = this.state.list.map((element) => {
+//       if (element.id === item.id) {
+//         element.completed = !element.completed;
+//       }
+//       return element;
+//     });
+//     this.setState({ list: newList });
+//   };
+
+//   handleRemove = (item) => {
+//     const filteredList = this.state.list.filter((element) => {
+//       if (element.id !== item.id) {
+//         return element;
+//       }
+//     });
+//     this.setState({ list: filteredList });
+//   };
+
+//   handleSearch = (e) => {
+//     const searchValue = e.target.value;
+//     this.setState({ searchValue }, () => {
+//       const filteredList = this.state.list.filter((item) =>
+//         item.value.toLowerCase().includes(searchValue)
+//       );
+//       this.setState({ list: filteredList });
+//     });
+//   };
+
+//   render() {
+//     return (
+//       <div className="App">
+//         <Form handleSubmit={this.handleSubmit} />
+
+//         <Search
+//           searchValue={this.state.searchValue}
+//           handleSearch={this.handleSearch}
+//         />
+//         <List
+//           list={this.state.list}
+//           handleToggle={this.handleToggle}
+//           handleRemove={this.handleRemove}
+//         />
+//       </div>
+//     );
+//   }
+// }
+
+const List = ({
+  items,
+  handleClick,
+  handleKeyPressDown,
+  handleChangeForEntry
+}) => (
+  <div>
+    {items.map((item, index) => (
+      <li key={item.id}>
+        {" "}
+        {item.isEdited ? (
+          <input
+            onChange={(e) => handleChangeForEntry(e.target.value, index)}
+            onKeyPress={(e) => handleKeyPressDown(e, index)}
+          />
+        ) : (
+          <span onClick={() => handleClick(index)}>{item.name}</span>
+        )}{" "}
+      </li>
+    ))}
+  </div>
+);
+
 class Form extends React.Component {
+  state = {
+    inputValue: "",
+    items: []
+  };
+
+  handleClick = (index) => {
+    const updatedItems = [...this.state.items];
+    updatedItems[index].isEdited = true;
+    this.setState({ items: updatedItems });
+  };
+
+  handleChangeForEntry = (value, index) => {
+    const updatedItems = [...this.state.items];
+    updatedItems[index].name = value;
+
+    this.setState({ items: updatedItems });
+  };
+
+  handleKeyPressDown = (e, index) => {
+    console.log(e.key);
+
+    if (e.key === "Enter") {
+      const updatedItems = [...this.state.items];
+      updatedItems[index].isEdited = false;
+      this.setState({ items: updatedItems });
+    }
+  };
+
+  handleChange = (value) => {
+    this.setState({ inputValue: value });
+    // console.log(value);
+  };
+
+  handleSubmit = (event) => {
+    event.preventDefault();
+    const item = {
+      name: this.state.inputValue,
+      isEdited: false,
+      id: ` ${Math.random()} - ${Math.random()} `
+    };
+    const updatedItems = [...this.state.items, item];
+    this.setState({ inputValue: "", items: updatedItems });
+    // console.log(this.state.items)
+  };
   render() {
     return (
       <div>
-        <form onSubmit={this.props.handleSubmit}>
-          {" "}
+        <form onSubmit={this.handleSubmit}>
           <input
-            onChange={(e) => this.props.handleChange(e.target.value)}
-            value={this.props.value}
+            value={this.state.inputValue}
+            onChange={(e) => this.handleChange(e.target.value)}
           />
         </form>
+        <List
+          items={this.state.items}
+          handleKeyPressDown={this.handleKeyPressDown}
+          handleClick={this.handleClick}
+          handleChangeForEntry={this.handleChangeForEntry}
+        />
       </div>
     );
   }
 }
 
 class App extends React.Component {
-  state = {
-    items: [],
-    searchValue: "",
-
-
-    isClicked: false,
-    isEditing: false,
-    inputItem: "",
-    editedValue: "",
-    
-  };
-
-  handleChange = (value) => {
-    this.setState({ inputItem: value });
-  };
-
-  handleClick = (index) => {
-
-    const itemsCopy = [...this.state.items]
-    itemsCopy[index].isEdited =  true
-
-
-    
-
-
-
-    this.setState({items: itemsCopy})
-    
-  };
-
-  handleKeyPress =  (e, index) => {
-    if (e.key === "Enter") {
-      const itemsCopy = [...this.state.items]
-      itemsCopy[index].isEdited =  false
-      
-      this.setState({items: itemsCopy})
-    }
-  }
-
-  handleSubmit = (event) => {
-    event.preventDefault();
-    const newItem = {key: this.state.inputItem}
-     
-    const updatedItems = [...this.state.items, newItem];
-
-    this.setState({ items: updatedItems, inputItem: "" });
-
-    console.log(this.state.items);
-  };
-
-  handleSubmit2 =  (event) => {
-    event.preventDefault();
-
-   
-  };
-
-  handleInput = (changedValue, index) => {
-    const copyOfItems = [...this.state.items];
-    const newObject = {key: changedValue, isEdited: true}
-     copyOfItems[index] = newObject
-    this.setState({ items: copyOfItems, editedValue: changedValue });
-    console.log(this.state.items)
-  };
-
   render() {
     return (
       <div className="App">
-        <Form
-          handleChange={this.handleChange}
-          handleSubmit={this.handleSubmit}
-          value={this.state.inputItem}
-        />
-        <List
-        editedValue = {this.state.editedValue}
-          items={this.state.items}
-          isEditing = {this.state.isEditing}
-          handleChange = {this.handleChange}
-          handleKeyPress = {this.handleKeyPress}
-
-          handleClick={this.handleClick}
-          handleInput={this.handleInput}
-        />
+        <Form />
       </div>
     );
   }
